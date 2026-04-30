@@ -6,17 +6,13 @@ const admin = require("firebase-admin");
 
 const app = express();
 
-// ✅ FIXED CORS (FINAL WORKING)
+// ✅ CORS FIX
 app.use(cors({
-  origin: [
-    "https://ff-arena-r0fe.onrender.com", // your frontend
-    "https://ff-arena.onrender.com"
-  ],
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type"],
+  allowedHeaders: ["Content-Type"]
 }));
 
-// ✅ HANDLE PREFLIGHT (IMPORTANT)
 app.options("*", cors());
 
 // ✅ BODY PARSER
@@ -25,7 +21,7 @@ app.use(express.json());
 // ✅ Serve frontend
 app.use(express.static("public"));
 
-// 🔐 Razorpay keys (better to move to env later)
+// 🔐 Razorpay keys
 const KEY_ID = "rzp_live_SjLhqPai5YkEF5";
 const KEY_SECRET = "ffXDSNucsQ5VCTp1dSXZPdRu";
 
@@ -34,18 +30,22 @@ const razorpay = new Razorpay({
   key_secret: KEY_SECRET
 });
 
-// 🔥 FIREBASE INIT
-// TEMP FIX (to avoid crash)
+// ================= FIREBASE SAFE INIT =================
+let db = null;
+
 try {
   const serviceAccount = require("./serviceAccountKey.json");
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });
+
+  db = admin.firestore();
+  console.log("✅ Firebase connected");
+
 } catch (err) {
-  console.log("⚠️ Firebase key not found");
+  console.log("⚠️ Firebase not initialized (missing key)");
 }
-const db = admin.firestore();
 
 // ================= CREATE ORDER =================
 app.post("/create-order", async (req, res) => {
@@ -105,6 +105,11 @@ function verifyAdmin(req, res, next) {
 
 // ================= GIVE PRIZE =================
 app.post("/give-prize", verifyAdmin, async (req, res) => {
+
+  if (!db) {
+    return res.status(500).json({ error: "Firebase not connected" });
+  }
+
   const { uid, amount } = req.body;
 
   try {
@@ -132,18 +137,26 @@ app.post("/give-prize", verifyAdmin, async (req, res) => {
     res.json({ success: true });
 
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: "Failed" });
   }
 });
 
 // ================= DELETE MATCH =================
 app.post("/delete-match", verifyAdmin, async (req, res) => {
+
+  if (!db) {
+    return res.status(500).json({ error: "Firebase not connected" });
+  }
+
   const { matchId } = req.body;
 
   try {
     await db.collection("matches").doc(matchId).delete();
     res.json({ success: true });
+
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: "Delete failed" });
   }
 });
@@ -153,7 +166,7 @@ app.get("/", (req, res) => {
   res.send("Backend is running ✅");
 });
 
-// ✅ IMPORTANT: USE RENDER PORT
+// ================= PORT FIX =================
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
