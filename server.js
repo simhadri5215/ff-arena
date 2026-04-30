@@ -2,30 +2,46 @@ const express = require("express");
 const Razorpay = require("razorpay");
 const cors = require("cors");
 const crypto = require("crypto");
+const admin = require("firebase-admin");
 
 const app = express();
 
-// ✅ FIXED CORS (VERY IMPORTANT)
+// ✅ FIXED CORS (FINAL WORKING)
 app.use(cors({
-  origin: "*",   // allow your frontend
-  methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type"]
+  origin: [
+    "https://ff-arena-r0fe.onrender.com", // your frontend
+    "https://ff-arena.onrender.com"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type"],
 }));
 
-// ✅ KEEP THIS
+// ✅ HANDLE PREFLIGHT (IMPORTANT)
+app.options("*", cors());
+
+// ✅ BODY PARSER
 app.use(express.json());
 
 // ✅ Serve frontend
 app.use(express.static("public"));
 
-// 🔐 Razorpay keys
-const KEY_ID = process.env.RAZORPAY_KEY_ID;
-const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;;
+// 🔐 Razorpay keys (better to move to env later)
+const KEY_ID = "rzp_live_SjLhqPai5YkEF5";
+const KEY_SECRET = "ffXDSNucsQ5VCTp1dSXZPdRu";
 
 const razorpay = new Razorpay({
   key_id: KEY_ID,
   key_secret: KEY_SECRET
 });
+
+// 🔥 FIREBASE INIT
+const serviceAccount = require("./serviceAccountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
 
 // ================= CREATE ORDER =================
 app.post("/create-order", async (req, res) => {
@@ -36,24 +52,20 @@ app.post("/create-order", async (req, res) => {
       return res.status(400).json({ error: "Invalid amount" });
     }
 
-    console.log("👉 Creating order for:", amount);
-
     const order = await razorpay.orders.create({
       amount: amount,
       currency: "INR"
     });
 
-    console.log("✅ Order created:", order.id);
-
-    res.json(order); // 🔥 always JSON
+    res.json(order);
 
   } catch (err) {
-    console.log("❌ ERROR:", err);
-    res.status(500).json({ error: "Order failed" }); // 🔥 FIXED
+    console.log(err);
+    res.status(500).json({ error: "Order failed" });
   }
 });
 
-// ================= VERIFY PAYMENT =================
+// ================= VERIFY =================
 app.post("/verify", (req, res) => {
   try {
     const { order_id, payment_id, signature } = req.body;
@@ -61,38 +73,22 @@ app.post("/verify", (req, res) => {
     const body = order_id + "|" + payment_id;
 
     const expected = crypto
-      .createHmac("sha256", KEY_SECRET) // 🔥 FIXED
+      .createHmac("sha256", KEY_SECRET)
       .update(body)
       .digest("hex");
 
     if (expected === signature) {
-      console.log("✅ Payment verified");
       res.json({ success: true });
     } else {
-      console.log("❌ Invalid signature");
       res.status(400).json({ success: false });
     }
 
   } catch (err) {
-    console.log("❌ VERIFY ERROR:", err);
     res.status(500).json({ success: false });
   }
 });
 
-// ================= START SERVER =================
-app.listen(5000, () => {
-  console.log("🚀 Server running at http://localhost:5000");
-});
-const admin = require("firebase-admin");
-
-// 🔥 Load Firebase service key
-const serviceAccount = require("./serviceAccountKey.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
-const db = admin.firestore();
+// ================= ADMIN CHECK =================
 function verifyAdmin(req, res, next) {
   const { email } = req.body;
 
@@ -102,8 +98,9 @@ function verifyAdmin(req, res, next) {
 
   next();
 }
-app.post("/give-prize", verifyAdmin, async (req, res) => {
 
+// ================= GIVE PRIZE =================
+app.post("/give-prize", verifyAdmin, async (req, res) => {
   const { uid, amount } = req.body;
 
   try {
@@ -131,12 +128,12 @@ app.post("/give-prize", verifyAdmin, async (req, res) => {
     res.json({ success: true });
 
   } catch (err) {
-    console.log(err);
     res.status(500).json({ error: "Failed" });
   }
 });
-app.post("/delete-match", verifyAdmin, async (req, res) => {
 
+// ================= DELETE MATCH =================
+app.post("/delete-match", verifyAdmin, async (req, res) => {
   const { matchId } = req.body;
 
   try {
@@ -146,11 +143,15 @@ app.post("/delete-match", verifyAdmin, async (req, res) => {
     res.status(500).json({ error: "Delete failed" });
   }
 });
+
+// ================= TEST =================
 app.get("/", (req, res) => {
   res.send("Backend is running ✅");
 });
+
+// ✅ IMPORTANT: USE RENDER PORT
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log("Server running");
+  console.log("Server running on port " + PORT);
 });
