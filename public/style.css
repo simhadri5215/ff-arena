@@ -386,3 +386,42 @@ button {
 button {
   touch-action: manipulation;
 }
+/* 🔥 LOGIN PAGE MOBILE FIX */
+.login-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 15px;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 350px;
+  padding: 20px;
+  border-radius: 12px;
+  background: #111827;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+}
+
+/* 📱 MOBILE */
+@media (max-width: 480px) {
+  .login-box {
+    width: 100%;
+    padding: 15px;
+  }
+
+  input {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+}
