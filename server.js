@@ -2,20 +2,10 @@ const express = require("express");
 const Razorpay = require("razorpay");
 const cors = require("cors");
 const crypto = require("crypto");
-const admin = require("firebase-admin");
 
 const app = express();
 
-// ✅ CORS FIX
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type"]
-}));
-
-app.options("*", cors());
-
-// ✅ BODY PARSER
+app.use(cors());
 app.use(express.json());
 
 // ✅ Serve frontend
@@ -30,23 +20,6 @@ const razorpay = new Razorpay({
   key_secret: KEY_SECRET
 });
 
-// ================= FIREBASE SAFE INIT =================
-let db = null;
-
-try {
-  const serviceAccount = require("./serviceAccountKey.json");
-
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-
-  db = admin.firestore();
-  console.log("✅ Firebase connected");
-
-} catch (err) {
-  console.log("⚠️ Firebase not initialized (missing key)");
-}
-
 // ================= CREATE ORDER =================
 app.post("/create-order", async (req, res) => {
   try {
@@ -56,20 +29,24 @@ app.post("/create-order", async (req, res) => {
       return res.status(400).json({ error: "Invalid amount" });
     }
 
+    console.log("👉 Creating order for:", amount);
+
     const order = await razorpay.orders.create({
       amount: amount,
       currency: "INR"
     });
 
-    res.json(order);
+    console.log("✅ Order created:", order.id);
+
+    res.json(order); // 🔥 always JSON
 
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Order failed" });
+    console.log("❌ ERROR:", err);
+    res.status(500).json({ error: "Order failed" }); // 🔥 FIXED
   }
 });
 
-// ================= VERIFY =================
+// ================= VERIFY PAYMENT =================
 app.post("/verify", (req, res) => {
   try {
     const { order_id, payment_id, signature } = req.body;
@@ -77,22 +54,38 @@ app.post("/verify", (req, res) => {
     const body = order_id + "|" + payment_id;
 
     const expected = crypto
-      .createHmac("sha256", KEY_SECRET)
+      .createHmac("sha256", KEY_SECRET) // 🔥 FIXED
       .update(body)
       .digest("hex");
 
     if (expected === signature) {
+      console.log("✅ Payment verified");
       res.json({ success: true });
     } else {
+      console.log("❌ Invalid signature");
       res.status(400).json({ success: false });
     }
 
   } catch (err) {
+    console.log("❌ VERIFY ERROR:", err);
     res.status(500).json({ success: false });
   }
 });
 
-// ================= ADMIN CHECK =================
+// ================= START SERVER =================
+app.listen(5000, () => {
+  console.log("🚀 Server running at http://localhost:5000");
+});
+const admin = require("firebase-admin");
+
+// 🔥 Load Firebase service key
+const serviceAccount = require("./serviceAccountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
 function verifyAdmin(req, res, next) {
   const { email } = req.body;
 
@@ -102,13 +95,7 @@ function verifyAdmin(req, res, next) {
 
   next();
 }
-
-// ================= GIVE PRIZE =================
 app.post("/give-prize", verifyAdmin, async (req, res) => {
-
-  if (!db) {
-    return res.status(500).json({ error: "Firebase not connected" });
-  }
 
   const { uid, amount } = req.body;
 
@@ -141,34 +128,17 @@ app.post("/give-prize", verifyAdmin, async (req, res) => {
     res.status(500).json({ error: "Failed" });
   }
 });
-
-// ================= DELETE MATCH =================
 app.post("/delete-match", verifyAdmin, async (req, res) => {
-
-  if (!db) {
-    return res.status(500).json({ error: "Firebase not connected" });
-  }
 
   const { matchId } = req.body;
 
   try {
     await db.collection("matches").doc(matchId).delete();
     res.json({ success: true });
-
   } catch (err) {
-    console.log(err);
     res.status(500).json({ error: "Delete failed" });
   }
 });
-
-// ================= TEST =================
 app.get("/", (req, res) => {
   res.send("Backend is running ✅");
-});
-
-// ================= PORT FIX =================
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
 });
