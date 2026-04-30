@@ -1,6 +1,7 @@
 /* 🌌 BODY */
 body {
   margin: 0;
+  width: 100%; /* ✅ FIXED */
   font-family: 'Segoe UI', sans-serif;
   background: linear-gradient(135deg, #020617, #0f172a);
   color: white;
@@ -18,10 +19,12 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
+  flex-wrap: wrap;
 }
 
 .top-bar h2 {
   color: #facc15;
+  font-size: 18px;
 }
 
 /* RIGHT BUTTONS */
@@ -43,21 +46,29 @@ body {
 
 .dropdown {
   display: none;
-  position: fixed; /* 🔥 change */
+  position: fixed; 
   right: 10px;
   top: 60px;
-  width: 90%; /* 🔥 responsive */
+  width: 95%; /* 🔥 responsive */
+  left: 50%;
+  transform: translateX(-50%);
   max-width: 300px;
   background: #1e293b;
   padding: 15px;
   border-radius: 12px;
   z-index: 200;
+  animation: fadeIn 0.2s ease;
+}
+
+.dropdown.show {
+  display: block;
 }
 
 /* 📦 CARD */
 .card {
   background: linear-gradient(145deg, #1e293b, #0f172a);
-  margin: 12px;
+  width: 100%;
+  margin: 8px 0;
   padding: 18px;
   border-radius: 14px;
   box-shadow: 0 5px 20px rgba(0,0,0,0.6);
@@ -99,8 +110,10 @@ button {
   font-weight: bold;
   cursor: pointer;
   background: linear-gradient(45deg, #f97316, #facc15);
-  font-size: 16px;
+  font-size: 15px;
   transition: 0.3s;
+  min-height: 48px; /* 🔥 mobile touch standard */
+  touch-action: manipulation;
 }
 
 button:hover {
@@ -117,6 +130,7 @@ input {
   border: none;
   background: #020617;
   color: white;
+  font-size: 14px;
 }
 
 /* 🏆 LEADERBOARD */
@@ -158,31 +172,19 @@ input {
   }
 }
 
-/* 📱 MOBILE */
-@media (max-width: 480px) {
-
-  .card {
-    margin: 10px;
-    padding: 15px;
-  }
-
-  button {
-    font-size: 14px;
-  }
-
-  .top-bar h2 {
-    font-size: 18px;
-  }
-}
 .loader {
   text-align: center;
   padding: 10px;
   opacity: 0.7;
 }
+
 .bottom-nav {
   position: fixed;
   bottom: 0;
   width: 100%;
+  max-width: 500px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   justify-content: space-around;
   background: #020617;
@@ -196,12 +198,11 @@ input {
   font-size: 18px;
   width: auto;
 }
+
 body {
-  padding-bottom: 70px;
+  padding-bottom: 80px;
 }
-button {
-  min-height: 48px; /* 🔥 mobile touch standard */
-}
+
 .profile-box {
   text-align: center;
   margin-bottom: 15px;
@@ -209,6 +210,7 @@ button {
 
 .profile-box h3 {
   color: #facc15;
+  font-size: 16px;
 }
 
 /* STATS GRID */
@@ -229,9 +231,7 @@ button {
 .stat h3 {
   color: #22c55e;
 }
-.dropdown {
-  animation: fadeIn 0.2s ease;
-}
+
 /* 🔥 LOGO */
 .logo-box {
   display: flex;
@@ -248,10 +248,9 @@ button {
   width: 100%;
   border-radius: 10px;
   margin: 10px 0;
-}
-.banner img {
   box-shadow: 0 0 20px rgba(255,140,0,0.5);
 }
+
 .tabs {
   display: flex;
   justify-content: space-around;
@@ -263,11 +262,19 @@ button {
   padding: 10px;
 }
 
+.tab {
+  display: none;
+  animation: fadeIn 0.25s ease;
+}
+
 .match-card {
-  background: #1e293b;
-  margin: 10px;
-  padding: 15px;
+  background: #111;
+  width: 100%;
+  margin: 8px 0;
+  padding: 12px;
   border-radius: 12px;
+  color: white;
+  margin-bottom: 10px;
 }
 
 .match-banner {
@@ -280,143 +287,66 @@ button {
   justify-content: space-between;
   margin-top: 8px;
 }
-.dropdown {
-  display: none;
-}
 
-.dropdown.show {
-  display: block;
-}
-.match-card {
-  border-radius: 12px;
-  padding: 10px;
-  background: #111;
-  color: white;
-  margin-bottom: 10px;
-}
 * {
   box-sizing: border-box;
 }
 
-html, body {
-  max-width: 100%;
-  overflow-x: hidden;
-}
-body {
-  font-size: 14px;
-}
-
-h2 {
-  font-size: 18px;
-}
-
-h3 {
-  font-size: 16px;
-}
-.match-card {
-  width: 100%;
-  margin: 8px 0;
-  padding: 12px;
-  border-radius: 12px;
-}
-button {
-  min-height: 48px;
-  font-size: 15px;
-  padding: 12px;
-}
-input {
-  font-size: 14px;
-  padding: 12px;
-}
-.top-bar {
-  flex-wrap: wrap;
-}
-.dropdown {
-  width: 95%;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.bottom-nav {
-  max-width: 500px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-body {
-  padding-bottom: 80px;
-}
-body {
-  max-width: 500px;
-  margin: auto;
-}
 html {
   scroll-behavior: smooth;
 }
+
 html, body {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
 }
 
-body {
-  max-width: 500px;
-  margin: auto;
-}
-.match-card, .card {
-  width: 100%;
-  margin: 8px 0;
-}
-
-button {
-  width: 100%;
-  font-size: 15px;
-  padding: 12px;
-}
-.top-bar {
-  flex-wrap: wrap;
-}
-.dropdown {
-  width: 95%;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.tab {
-  display: none;
-  animation: fadeIn 0.25s ease;
-}
-button {
-  touch-action: manipulation;
-}
-/* 🔥 LOGIN PAGE MOBILE FIX */
+/* 🔥 LOGIN FULL SCREEN */
 .login-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 15px;
+  margin: 0;
+  padding: 0;
 }
 
+/* FULL SCREEN LOGIN */
 .login-box {
   width: 100%;
-  max-width: 350px;
+  min-height: 100vh;
   padding: 20px;
-  border-radius: 12px;
-  background: #111827;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #111827; /* Keeping original background theme */
+}
+
+/* INPUT FULL WIDTH */
+.login-box input {
+  width: 100%;
+}
+
+/* BUTTON FULL WIDTH */
+.login-box button {
+  width: 100%;
 }
 
 /* 📱 MOBILE */
 @media (max-width: 480px) {
-  .login-box {
-    width: 100%;
+  .card, .match-card {
+    margin: 10px 0;
     padding: 15px;
   }
 
-  input {
+  button {
     font-size: 14px;
     padding: 10px;
   }
 
-  button {
+  .top-bar h2 {
+    font-size: 18px;
+  }
+  
+  input {
     font-size: 14px;
     padding: 10px;
   }
