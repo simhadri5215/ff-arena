@@ -349,7 +349,7 @@ window.addMoney = async function() {
   }
 
   try {
-    const res = await ffetch("https://your-backend.onrender.com/create-order", {
+    const res = await fetch("https://your-backend.onrender.com/create-order", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({ amount: amount * 100 })
