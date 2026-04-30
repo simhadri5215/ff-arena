@@ -5,13 +5,15 @@ const crypto = require("crypto");
 
 const app = express();
 
-const cors = require("cors");
-
+// ✅ FIXED CORS (VERY IMPORTANT)
 app.use(cors({
-  origin: "*",
+  origin: "*",   // allow your frontend
   methods: ["GET", "POST"],
   allowedHeaders: ["Content-Type"]
 }));
+
+// ✅ KEEP THIS
+app.use(express.json());
 
 // ✅ Serve frontend
 app.use(express.static("public"));
