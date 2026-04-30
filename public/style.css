@@ -355,3 +355,41 @@ html, body {
     font-size: 22px;
   }
 }
+/* 🔥 LOGIN FULL SCREEN FIX */
+.login-body {
+  margin: 0;
+  padding: 0;
+}
+
+/* CENTER CONTENT BUT CONTROL WIDTH */
+.login-box {
+  width: 100%;
+  max-width: 400px;       /* 🔥 important */
+  margin: auto;           /* center */
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* INPUT FIX */
+.login-box input {
+  width: 100%;
+  max-width: 100%;        /* 🔥 prevent overflow */
+  box-sizing: border-box;
+}
+
+/* BUTTON FIX */
+.login-box button {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* MOBILE SMALL SCREEN */
+@media (max-width: 480px) {
+  .login-box {
+    padding: 15px;
+  }
+}
