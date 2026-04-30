@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Warzone Arena</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- 🔥 TOP BAR -->
+<div class="top-bar">
+  <h2>🎮 Warzone Arena</h2>
+
+  <div class="top-right">
+    <button onclick="toggleWallet()">💰 ₹<span id="walletAmount">0</span></button>
+    <button onclick="openProfile()">👤</button>
+    <button onclick="logout()">🚪 Logout</button> <!-- ✅ FIXED -->
+  </div>
+</div>
+
+<!-- 💰 WALLET -->
+<div id="walletMenu" class="dropdown">
+  <h3>Wallet</h3>
+
+  <input id="depositAmount" placeholder="Enter amount (min ₹40)">
+  <button onclick="addMoney()">Deposit</button>
+
+  <input id="withdrawAmount" placeholder="Withdraw amount">
+  <input id="upiId" placeholder="UPI ID">
+  <button onclick="requestWithdraw()">Withdraw</button>
+</div>
+
+<!-- 👤 PROFILE MENU -->
+<div id="profileMenu" class="dropdown">
+  <p id="userIdText">Loading...</p>
+  <button onclick="loadTransactions()">📊 Transactions</button>
+  <button onclick="logout()">🚪 Logout</button>
+</div>
+
+<!-- 🎮 MATCHES -->
+<div class="card">
+  <h3>🎮 Matches</h3>
+
+  <div class="tabs">
+    <button onclick="loadMatches('ongoing')">Ongoing</button>
+    <button onclick="loadMatches('upcoming')">Upcoming</button>
+    <button onclick="loadMatches('resulted')">Resulted</button>
+  </div>
+
+  <div id="matches"></div>
+  <div id="resultBox"></div>
+</div>
+<div id="resultBox" style="background:#111; color:white; padding:10px;"></div>
+
+<!-- 🏆 LEADERBOARD -->
+<div class="card">
+  <h3>🏆 Leaderboard</h3>
+  <button onclick="loadLeaderboard()">Load</button>
+  <div id="leaderboard"></div>
+</div>
+
+<!-- 📊 TRANSACTIONS -->
+<div class="card">
+  <h3>📊 Transactions</h3>
+  <button onclick="loadTransactions()">View</button>
+  <div id="transactions"></div>
+</div>
+
+<!-- 👑 ADMIN -->
+<div id="adminPanel" class="card" style="display:none;">
+  <h3>👑 Admin Panel</h3>
+
+  <input id="winnerId" placeholder="User ID">
+  <input id="prizeAmount" placeholder="Prize Amount">
+  <button onclick="givePrize()">Give Prize</button>
+
+  <button onclick="loadWithdrawals()">📥 Withdraw Requests</button>
+  <div id="withdrawList"></div>
+  
+
+  <hr>
+
+  <h4>Create Match</h4>
+  <input id="mTitle" placeholder="Match Title">
+  <input id="winnerMatchId" placeholder="Match ID">
+<input id="winnerUserId" placeholder="Winner User ID">
+<input id="winnerPrize" placeholder="Prize Amount">
+
+<button onclick="declareWinner()">🏆 Declare Winner</button>
+<input id="mRoomId" placeholder="Room ID">
+<input id="mRoomPass" placeholder="Room Password">
+<button onclick="loadPlayersForResult()">🎮 Load Players</button>
+<div id="playersList"></div>
+<h3>💬 Support Chats</h3>
+
+<button onclick="loadUsers()">Load Users</button>
+<div id="userList"></div>
+
+<div id="adminChatBox" style="display:none; background:#111; padding:10px; margin-top:10px;">
+  
+  <h4 id="chatUser">User</h4>
+
+  <div id="adminMessages" style="height:200px; overflow:auto;"></div>
+
+  <div style="display:flex;">
+    <input id="adminInput" placeholder="Reply">
+    <button onclick="sendAdminMessage()">Send</button>
+  </div>
+
+</div>
+
+
+  <!-- 🔥 THIS IS THE MAIN FIX -->
+  <label>📅 Select Date & Time</label>
+  <input type="datetime-local" id="mTime"> <!-- ✅ FIXED -->
+
+  <input id="mPrize" placeholder="Prize">
+  <input id="mEntry" placeholder="Entry Fee">
+  <input id="mMode" placeholder="Mode">
+  <input id="mMap" placeholder="Map">
+  <input id="mMax" placeholder="Max Players">
+
+  <select id="mStatus">
+    <option value="upcoming">Upcoming</option>
+    <option value="ongoing">Ongoing</option>
+    <option value="resulted">Resulted</option>
+  </select>
+
+  <button onclick="createMatch()">Create Match</button>
+</div>
+
+<!-- 👤 PROFILE PAGE -->
+<div id="profilePage" class="card" style="display:none;">
+  <h2>👤 Profile</h2>
+
+  <div class="profile-box">
+    <h3 id="profileName">Player</h3>
+    <p>🆔 <span id="profileId"></span></p>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <p>💰 Wallet</p>
+      <h3 id="profileWallet">0</h3>
+    </div>
+
+    <div class="stat">
+      <p>🏆 Winnings</p>
+      <h3 id="profileWins">0</h3>
+    </div>
+
+    <div class="stat">
+      <p>🎮 Matches</p>
+      <h3 id="profileMatches">0</h3>
+    </div>
+  </div>
+
+  <button onclick="closeProfile()">Close</button>
+</div>
+
+<!-- 📱 BOTTOM NAV -->
+<div class="bottom-nav">
+  <button onclick="loadMatches('ongoing')">🏠</button>
+  <button onclick="loadLeaderboard()">🏆</button>
+  <button onclick="loadTransactions()">📊</button>
+</div>
+<button onclick="openChat()">💬 Support</button>
+
+<div id="chatBox" style="display:none; flex-direction:column; position:fixed; bottom:0; right:0; width:300px; height:400px; background:#111;">
+  
+  <div id="chatMessages" style="flex:1; overflow:auto;"></div>
+
+  <div style="display:flex;">
+    <input id="chatInput" placeholder="Type message">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script type="module" src="app.js"></script>
+
+</body>
+</html>
