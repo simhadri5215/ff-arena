@@ -35,12 +35,16 @@ const razorpay = new Razorpay({
 });
 
 // 🔥 FIREBASE INIT
-const serviceAccount = require("./serviceAccountKey.json");
+// TEMP FIX (to avoid crash)
+try {
+  const serviceAccount = require("./serviceAccountKey.json");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+} catch (err) {
+  console.log("⚠️ Firebase key not found");
+}
 const db = admin.firestore();
 
 // ================= CREATE ORDER =================
