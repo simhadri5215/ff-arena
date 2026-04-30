@@ -1,5 +1,6 @@
 let currentChatUser = null;
 const ADMIN_EMAIL = "kodinanikodinani123@gmail.com";
+const BASE_URL = "https://ff-arena.onrender.com";
 
 // 🔥 IMPORTS
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -144,12 +145,10 @@ window.loadMatches = async function(type) {
           </div>
         ` : ""}
 
-        <!-- ADMIN PLAYER LIST -->
         ${auth.currentUser?.email === ADMIN_EMAIL && m.playerNames 
           ? Object.values(m.playerNames).map(n => `<p>🎮 ${n}</p>`).join("") 
           : ""}
 
-        <!-- 🔥 STEP 5: SHOW LEADERBOARD -->
         ${m.results ? m.results.map(p => `
           <p>
             ${p.position === 1 ? "🥇" : p.position === 2 ? "🥈" : p.position === 3 ? "🥉" : ""}
@@ -157,11 +156,9 @@ window.loadMatches = async function(type) {
           </p>
         `).join("") : ""}
 
-        <!-- ADMIN BUTTONS -->
         ${auth.currentUser?.email === ADMIN_EMAIL ? `
           <button onclick="editMatch('${docSnap.id}')">✏️ Edit</button>
 
-          <!-- 🔥 STEP 1: ENTER RESULTS BUTTON -->
           <button onclick="openResultPanel('${docSnap.id}')">📊 Enter Results</button>
         ` : ""}
 
@@ -450,7 +447,7 @@ window.deleteMatch = async function(matchId) {
 
   try {
 
-    const res = await fetch("http://localhost:5000/delete-match", {
+    const res = await fetch(`${BASE_URL}/delete-match`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -536,7 +533,7 @@ window.givePrize = async function() {
   }
 
   try {
-    const res = await fetch("http://localhost:5000/give-prize", {
+    const res = await fetch(`${BASE_URL}/give-prize`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
