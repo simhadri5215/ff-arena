@@ -12,8 +12,8 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // 🔐 Razorpay keys
-const KEY_ID = "rzp_live_SjLhqPai5YkEF5";
-const KEY_SECRET = "ffXDSNucsQ5VCTp1dSXZPdRu";
+const KEY_ID = process.env.RAZORPAY_KEY_ID;
+const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;;
 
 const razorpay = new Razorpay({
   key_id: KEY_ID,
