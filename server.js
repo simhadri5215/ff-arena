@@ -5,8 +5,13 @@ const crypto = require("crypto");
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+const cors = require("cors");
+
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"]
+}));
 
 // ✅ Serve frontend
 app.use(express.static("public"));
